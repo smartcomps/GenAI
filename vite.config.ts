@@ -15,8 +15,7 @@ export default defineConfig(({ mode }) => {
       // during the build process, so they are available in your code.
       define: {
         'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
-        'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY),
-        'process.env.HF_TOKEN': JSON.stringify(env.HF_TOKEN)
+        'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY)
       },
 
       // The `resolve` property allows you to use a '@' alias for cleaner imports.
