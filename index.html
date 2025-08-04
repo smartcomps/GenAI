@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Image Flip Card</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      // Opt-in to TailwindCSS JIT features if not enabled by default for CDN version
+      // For aspect-ratio plugin in CDN, it's often included or can be configured.
+      // If aspect-w-1 aspect-h-1 classes don't work, this config might be needed for a standalone plugin.
+      // However, modern Tailwind CDN often supports aspect ratio utilities directly.
+      // For safety, let's ensure the plugin is theoretically available.
+      // Most CDN versions include common plugins by default.
+      // If specific plugins are needed and not in the default CDN build,
+      // you'd typically include them separately or use a custom build.
+      // For now, assuming aspect-ratio utilities are available or polyfilled.
+      // The `ImageLibraryCard` uses `aspect-w-1 aspect-h-1`. This requires the aspect-ratio plugin.
+      // A simple way for CDN is to see if it works. If not, a custom build of Tailwind is better.
+      // Let's ensure the necessary CSS for aspect ratio is covered or add it.
+    }
+  </script>
+  <style>
+    body {
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    }
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background-color: #4b5563; /* Tailwind gray-600 */
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-track {
+      background-color: #1f2937; /* Tailwind gray-800 */
+    }
+    .preserve-3d { transform-style: preserve-3d; }
+    .backface-hidden { backface-visibility: hidden; }
+    .rotate-y-180 { transform: rotateY(180deg); }
+
+    /* Scrollbar utilities for Tailwind (if not using plugin) */
+    .scrollbar-thin {
+        scrollbar-width: thin;
+    }
+    .scrollbar-thumb-slate-600::-webkit-scrollbar-thumb {
+        background-color: #4b5563; /* gray-600 */
+    }
+    .scrollbar-thumb-slate-600 {
+        scrollbar-color: #4b5563 #374151; /* thumb track for Firefox */
+    }
+    .scrollbar-track-slate-700::-webkit-scrollbar-track {
+        background-color: #374151; /* gray-700 */
+    }
+     .scrollbar-track-slate-900::-webkit-scrollbar-track {
+        background-color: #0f172a; /* slate-900 */
+    }
+     .scrollbar-thumb-slate-600::-webkit-scrollbar-thumb {
+        border-radius: 4px;
+    }
+
+    /* Animation for new decks */
+    @keyframes slide-up-fade-in {
+      from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.98);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+    .animate-slide-up-fade-in {
+      animation: slide-up-fade-in 0.5s ease-out forwards;
+    }
+
+    /* Animation for modals */
+    @keyframes fade-in {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    .animate-fade-in { animation: fade-in 0.3s ease-out forwards; }
+    
+    @keyframes zoom-in {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .animate-zoom-in { animation: zoom-in 0.3s cubic-bezier(0.2, 0, 0, 1) forwards; }
+    
+    @keyframes image-fade-in {
+      from { opacity: 0.5; }
+      to { opacity: 1; }
+    }
+    .animate-image-fade-in { animation: image-fade-in 0.3s ease-in-out forwards; }
+
+
+    /* Animation for image hover loop */
+    @keyframes pulse-zoom {
+      0%, 100% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.03);
+      }
+    }
+    .group:hover .pulse-on-hover {
+      animation: pulse-zoom 4s ease-in-out infinite;
+    }
+
+  </style>
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@^19.1.0",
+    "react-dom/": "https://esm.sh/react-dom@^19.1.0/",
+    "react/": "https://esm.sh/react@^19.1.0/",
+    "@google/genai": "https://esm.sh/@google/genai@^1.4.0"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+<body class="bg-slate-900">
+  <noscript>You need to enable JavaScript to run this app.</noscript>
+  <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>
