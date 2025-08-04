@@ -1,9 +1,7 @@
-
-
 import { GoogleGenAI, GenerateContentResponse } from "@google/genai";
+import { generateImageWithHuggingFace } from "./huggingFaceService";
 
-// Initialize GoogleGenAI instance.
-// This relies on process.env.API_KEY being set in the environment where this code runs.
+// This relies on process.env.API_KEY being set for Google AI.
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY }); 
 
 export async function generatePrompt(personalityPrompt: string, model: string): Promise<string> {
@@ -36,6 +34,13 @@ export async function generateImage(prompt: string, model: string, aspectRatio: 
   if (!prompt || prompt.trim() === "") {
     throw new Error("Cannot generate image: prompt is empty.");
   }
+  
+  // Dispatch to the correct service based on model ID
+  if (model.startsWith('black-forest-labs/')) {
+    return generateImageWithHuggingFace(prompt, model);
+  }
+  
+  // --- Google GenAI Logic ---
   try {
     const result = await ai.models.generateImages({
       model: model,
@@ -43,7 +48,6 @@ export async function generateImage(prompt: string, model: string, aspectRatio: 
       config: { 
         numberOfImages: 1, 
         outputMimeType: "image/png",
-        // The underlying API for Imagen 3 supports aspectRatio, but it might not be in the SDK's type definitions yet.
         // @ts-ignore 
         aspectRatio: aspectRatio,
       }
