@@ -837,8 +837,7 @@ const App: React.FC = () => {
 
       <footer className="w-full text-center py-6 mt-auto border-t border-slate-700/50 bg-slate-900/30">
         <p className="text-slate-500 text-xs sm:text-sm">
-          Powered by Google Gemini & Imagen APIs.
-          Crafted with React & Tailwind CSS.
+          Gen.
         </p>
       </footer>
     </div>
