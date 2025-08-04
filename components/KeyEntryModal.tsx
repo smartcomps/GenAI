@@ -30,7 +30,7 @@ const KeyEntryModal: React.FC<KeyEntryModalProps> = ({ onKeySubmit, error }) => 
           Please enter your key to access the application and generate images.
         </p>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4" autoComplete="off">
           <div>
             <label htmlFor="accessKey" className="sr-only">
               Access Key
@@ -40,7 +40,8 @@ const KeyEntryModal: React.FC<KeyEntryModalProps> = ({ onKeySubmit, error }) => 
               type="text"
               value={keyInput}
               onChange={(e) => setKeyInput(e.target.value)}
-              placeholder="e.g., PRO-A1B2-C3D4-E5F6"
+              placeholder=""
+              autoComplete="off"
               className="w-full p-3 bg-slate-700 text-slate-100 border border-slate-600 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 placeholder-slate-400 text-center font-mono tracking-wider"
               autoFocus
             />
