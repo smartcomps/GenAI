@@ -13,7 +13,8 @@ export default defineConfig(({ mode }) => {
       // The `define` property injects your API keys as environment variables.
       define: {
         'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
-        'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY)
+        'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY),
+        'process.env.HF_TOKEN': JSON.stringify(env.HF_TOKEN)
       },
 
       // The `resolve` property for aliases is still useful.
