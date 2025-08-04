@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import Card from './components/Card';
 import LoadingSpinner from './components/LoadingSpinner';
@@ -45,6 +44,7 @@ const AVAILABLE_TEXT_MODELS: Model[] = [
 ];
 const AVAILABLE_IMAGE_MODELS: Model[] = [
     { id: 'imagen-3.0-generate-002', name: 'Imagen 3', tier: 'free' },
+    { id: 'black-forest-labs/FLUX.1-schnell', name: 'FLUX.1 Schnell', tier: 'free'},
     { id: 'imagen-4.0-generate-preview-06-06', name: 'Imagen 4', tier: 'pro' },
     { id: 'imagen-4.0-ultra-generate-preview-06-06', name: 'Imagen 4 Ultra', tier: 'pro' },
 ];
@@ -177,8 +177,11 @@ const App: React.FC = () => {
   const [keyError, setKeyError] = useState<string | null>(null);
 
   const subscriptionTier = activeKeyData?.isPro ? 'pro' : 'free';
-  const hasNoUsesLeft = remainingUses !== null && remainingUses <= 0;
+  const hasNoUsesLeft = remainingUses === null || remainingUses <= 0;
+  const isHfModel = imageModel.startsWith('black-forest-labs/');
 
+  const googleImageModels = AVAILABLE_IMAGE_MODELS.filter(m => !m.id.startsWith('black-forest-labs/'));
+  const ossImageModels = AVAILABLE_IMAGE_MODELS.filter(m => m.id.startsWith('black-forest-labs/'));
 
   // Check for stored key on initial load
   useEffect(() => {
@@ -229,6 +232,13 @@ const App: React.FC = () => {
     }
   }, [subscriptionTier, textModel, imageModel, personalityPrompt, personalities, activeKeyData]);
 
+  // Effect to handle OSS model constraints
+  useEffect(() => {
+    if (isHfModel) {
+        setAspectRatio('1:1');
+    }
+  }, [isHfModel]);
+
 
   const addCurrentToLibrary = useCallback((currentImgUrl: string, currentPrompt: string) => {
     setLibraryItems(prevItems => [
@@ -245,6 +255,15 @@ const App: React.FC = () => {
     try {
       const newPrompt = await generatePrompt(personalityPrompt, textModel);
       const newImageUrl = await generateImage(newPrompt, imageModel, aspectRatio);
+
+      // On success, decrement uses for the pre-generated image.
+      setRemainingUses(prevUses => {
+        if (prevUses === null) return null; // Should be guarded by hasNoUsesLeft
+        const newUses = prevUses - 1;
+        localStorage.setItem('remainingUses', newUses.toString());
+        return newUses;
+      });
+
       setNextPromptText(newPrompt);
       setNextImageUrl(newImageUrl);
       setIsNextReady(true);
@@ -256,10 +275,10 @@ const App: React.FC = () => {
     } finally {
       setIsPreparingNext(false);
     }
-  }, [isPreparingNext, personalityPrompt, textModel, imageModel, aspectRatio, hasNoUsesLeft]);
+  }, [isPreparingNext, personalityPrompt, textModel, imageModel, aspectRatio, hasNoUsesLeft, remainingUses]);
 
   const executeImageGeneration = useCallback(async (promptToUse: string) => {
-    if (isLoading) return;
+    if (isLoading || remainingUses === null) return;
     if (hasNoUsesLeft) {
         setError("You have no image generations left. Please use a different key.");
         if(!isFlipped) setIsFlipped(true);
@@ -279,7 +298,7 @@ const App: React.FC = () => {
       const newImageUrl = await generateImage(promptToUse, imageModel, aspectRatio);
       
       // On success, decrement uses
-      const newRemainingUses = (remainingUses ?? 1) - 1;
+      const newRemainingUses = remainingUses - 1;
       setRemainingUses(newRemainingUses);
       localStorage.setItem('remainingUses', newRemainingUses.toString());
       
@@ -636,16 +655,32 @@ const App: React.FC = () => {
                           disabled={isLoading}
                           className="w-full p-2 bg-slate-700 text-slate-100 border border-slate-600 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 disabled:opacity-70 disabled:bg-slate-800"
                       >
-                          {AVAILABLE_IMAGE_MODELS.map(model => (
-                              <option 
+                        <optgroup label="Google Imagen">
+                            {googleImageModels.map(model => (
+                                <option 
                                 key={model.id} 
                                 value={model.id} 
                                 disabled={model.tier === 'pro' && subscriptionTier === 'free'}
                                 title={model.tier === 'pro' && subscriptionTier === 'free' ? 'Upgrade to Pro to use this model' : ''}
-                              >
+                                >
                                 {model.name} {model.tier === 'pro' ? '👑' : ''}
-                              </option>
-                          ))}
+                                </option>
+                            ))}
+                        </optgroup>
+                        {ossImageModels.length > 0 && (
+                            <optgroup label="Open Source">
+                                {ossImageModels.map(model => (
+                                    <option 
+                                    key={model.id} 
+                                    value={model.id} 
+                                    disabled={model.tier === 'pro' && subscriptionTier === 'free'}
+                                    title={model.tier === 'pro' && subscriptionTier === 'free' ? 'Upgrade to Pro to use this model' : ''}
+                                    >
+                                    {model.name} {model.tier === 'pro' ? '👑' : ''}
+                                    </option>
+                                ))}
+                            </optgroup>
+                        )}
                       </select>
                   </div>
                   <div>
@@ -656,13 +691,14 @@ const App: React.FC = () => {
                           id="aspectRatioSelect"
                           value={aspectRatio}
                           onChange={(e) => setAspectRatio(e.target.value)}
-                          disabled={isLoading}
-                          className="w-full p-2 bg-slate-700 text-slate-100 border border-slate-600 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 disabled:opacity-70"
+                          disabled={isLoading || isHfModel}
+                          className="w-full p-2 bg-slate-700 text-slate-100 border border-slate-600 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 disabled:opacity-70 disabled:cursor-not-allowed"
                       >
                           {ASPECT_RATIOS.map(ratio => (
                               <option key={ratio.id} value={ratio.id}>{ratio.name}</option>
                           ))}
                       </select>
+                      {isHfModel && <p className="text-xs text-slate-500 mt-1">FLUX.1 model generates 1:1 images.</p>}
                   </div>
               </div>
           </div>
