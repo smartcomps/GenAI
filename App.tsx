@@ -45,7 +45,7 @@ const AVAILABLE_TEXT_MODELS: Model[] = [
 const AVAILABLE_IMAGE_MODELS: Model[] = [
     { id: 'imagen-3.0-generate-002', name: 'Imagen 3', tier: 'free' },
     { id: 'black-forest-labs/FLUX.1-schnell', name: 'FLUX.1 Schnell', tier: 'free'},
-    { id: 'imagen-4.0-generate-preview-06-06', name: 'Imagen 4', tier: 'pro' },
+    { id: 'imagen-4.0-generate-001', name: 'Imagen 4', tier: 'pro' },
     { id: 'imagen-4.0-ultra-generate-preview-06-06', name: 'Imagen 4 Ultra', tier: 'pro' },
 ];
 
